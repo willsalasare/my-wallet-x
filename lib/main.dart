@@ -7,13 +7,16 @@ import 'package:mywallet/src/pages/auth/login_page.dart';
 import 'package:mywallet/src/pages/auth/sec_page.dart';
 import 'package:mywallet/src/pages/transactions/transactions_page.dart';
 import 'package:mywallet/src/pages/wallet/wallets_page.dart';
+import 'package:mywallet/src/services/app_service.dart';
 import 'package:mywallet/src/state/user_state.dart';
 import 'package:mywallet/src/state/wallet_state.dart';
+import 'package:mywallet/src/utils/theme.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await AppService.initialize();
   runApp(const MyApp());
 }
 
@@ -51,7 +54,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
-        theme: ThemeData.dark(),
+        theme: CustomTheme.themeDark,
         routeInformationParser: router.routeInformationParser,
         routerDelegate: router.routerDelegate,
       ),

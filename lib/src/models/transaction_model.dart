@@ -1,8 +1,9 @@
+import 'package:mywallet/src/models/category.dart';
+
 class Transaction {
-  late String id, walletId, createdAt;
-  String? note;
+  late String id, walletId, note, createdAt;
   late int amount, type;
-  Map<String, String> category;
+  Category category;
   Transaction({
     required this.id,
     required this.walletId,
@@ -19,7 +20,7 @@ class Transaction {
         note: json['note'],
         createdAt: json['created_at'],
         type: json['type'],
-        category: Map<String, String>.from(json['category']),
+        category: Category.fromJson(json['category']),
       );
 
   Map<String, dynamic> toSave() => {

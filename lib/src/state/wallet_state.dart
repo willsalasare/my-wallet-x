@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mywallet/src/core/wallet_repo.dart';
 import 'package:mywallet/src/models/wallet_model.dart';
 
@@ -12,11 +13,16 @@ class WalletState extends ChangeNotifier {
   }
 
   void getWallets() async {
-    wallets.clear();
-    final res = await WalletRepo.instance.wallets();
-    wallets.addAll(res);
-    loading = false;
-    notifyListeners();
+    try {
+      wallets.clear();
+      final res = await WalletRepo.instance.wallets();
+      wallets.addAll(res);
+    } catch (e) {
+      Fluttertoast.showToast(msg: e.toString());
+    } finally {
+      loading = false;
+      notifyListeners();
+    }
   }
 
   void updateWallet(Wallet wallet) {

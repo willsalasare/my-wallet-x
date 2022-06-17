@@ -1,13 +1,19 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mywallet/src/models/category.dart';
 import 'package:mywallet/src/models/transaction_model.dart' as t;
 import 'package:mywallet/src/models/wallet_model.dart';
+import 'package:mywallet/src/utils/constants.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class WalletRepo {
   WalletRepo._();
   static final _instance = WalletRepo._();
   static final instance = _instance;
   final _db = FirebaseFirestore.instance;
+  static final _prefs = SharedPreferences.getInstance();
 
   Future<Wallet> storeWallet(Map<String, dynamic> data) async {
     final res = await _db.collection('wallets').add(data);
@@ -100,5 +106,22 @@ class WalletRepo {
         .add({'user_id': userId, 'wallet_id': id});
     final wallet = await _db.collection('wallets').doc(id).get();
     return Wallet.fromJson({...?wallet.data(), 'id': wallet.id});
+  }
+
+  Future<void> setCategories() async {
+    final prefs = await _prefs;
+    final data = prefs.getString('categories');
+    if (data == null) {
+      await prefs.setString(categoriesKey, jsonEncode(categoriesData));
+    }
+  }
+
+  Future<List<Category>> categories() async {
+    final prefs = await _prefs;
+    final data = prefs.getString(categoriesKey);
+    if (data == null) return [];
+    final dataDecoded = jsonDecode(data);
+    return List<Category>.from(dataDecoded.map((c) => Category.fromJson(c)))
+        .toList();
   }
 }

@@ -71,7 +71,10 @@ class _WalletsPageState extends State<WalletsPage> {
                     ),
                   ],
                 ),
-                Text(wallet.name)
+                Text(
+                  wallet.name,
+                  style: Theme.of(context).textTheme.titleLarge,
+                )
               ],
             ),
           ),
@@ -100,12 +103,18 @@ class _WalletsPageState extends State<WalletsPage> {
               shrinkWrap: true,
               children: [
                 ListTile(
-                  leading: const Icon(Icons.share),
+                  leading: const Icon(
+                    Icons.share,
+                    color: Colors.blue,
+                  ),
                   title: const Text('Compartir'),
                   onTap: () => _share(wallet),
                 ),
                 ListTile(
-                  leading: const Icon(Icons.delete),
+                  leading: const Icon(
+                    Icons.delete,
+                    color: Colors.red,
+                  ),
                   title: const Text('Eliminar'),
                   onTap: () => _delete(wallet),
                 ),

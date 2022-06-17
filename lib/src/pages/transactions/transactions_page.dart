@@ -53,34 +53,53 @@ class _TransactionsPageState extends State<TransactionsPage> {
                 final item = _list[i];
                 return Card(
                   child: InkWell(
-                    onTap: () => _showMemu(item),
+                    onLongPress: () => _showMemu(item),
                     child: Padding(
                       padding: const EdgeInsets.all(15.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Row(
                         children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Row(
-                                children: [
-                                  Image.asset(
-                                      'assets/icons/${item.category['path']}',
-                                      width: 20),
-                                  const SizedBox(width: 5),
-                                  Text(item.category['title']!),
-                                ],
-                              ),
-                              const Spacer(),
-                              Text(title,
-                                  style: TextStyle(
-                                      fontSize: 24,
-                                      color:
-                                          isAdd ? Colors.green : Colors.red)),
-                            ],
+                          Image.asset('assets/icons/${item.category.path}',
+                              width: 30),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text(
+                                          item.category.title,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleLarge,
+                                        ),
+                                      ],
+                                    ),
+                                    Text(
+                                      item.note,
+                                      style:
+                                          Theme.of(context).textTheme.bodyLarge,
+                                    ),
+                                    Text(
+                                      item.createdAt.substring(0, 10),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium,
+                                    ),
+                                  ],
+                                ),
+                                Text(title,
+                                    style: TextStyle(
+                                        fontSize: 24,
+                                        color:
+                                            isAdd ? Colors.green : Colors.red)),
+                              ],
+                            ),
                           ),
-                          Text(item.note ?? ''),
-                          Text(item.createdAt.substring(0, 10)),
                         ],
                       ),
                     ),
@@ -98,14 +117,6 @@ class _TransactionsPageState extends State<TransactionsPage> {
         builder: (_) => ListView(
               shrinkWrap: true,
               children: [
-                // ListTile(
-                //   leading: const Icon(
-                //     Icons.edit,
-                //     color: Colors.blue,
-                //   ),
-                //   title: const Text('Editar'),
-                //   onTap: () {},
-                // ),
                 ListTile(
                   leading: const Icon(
                     Icons.delete,
@@ -118,12 +129,34 @@ class _TransactionsPageState extends State<TransactionsPage> {
             ));
   }
 
-  void _delete(Transaction transaction) {
+  void _delete(Transaction transaction) async {
+    final res = await showDialog<bool?>(
+        context: context,
+        builder: (_) => AlertDialog(
+              title: const Text('¿Seguro que quieres eliminar la transacción?'),
+              actions: [
+                MaterialButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text('No'),
+                ),
+                MaterialButton(
+                  color: Colors.red,
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('Si, eliminar'),
+                )
+              ],
+            ));
+    if (res ?? true) {
+      if (!mounted) return;
+      Navigator.pop(context);
+      return;
+    }
     WalletRepo.instance.deleteTransaction(transaction);
     _list.removeWhere((element) => element.id == transaction.id);
     widget.wallet.amount = transaction.type == 1
         ? widget.wallet.amount - transaction.amount
         : widget.wallet.amount + transaction.amount;
+    if (!mounted) return;
     context.read<WalletState>().updateWallet(widget.wallet);
     setState(() {});
     Navigator.pop(context);
