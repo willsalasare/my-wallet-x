@@ -93,10 +93,12 @@ class WalletRepo {
     }
   }
 
-  Future<void> importWallet(String id) async {
+  Future<Wallet> importWallet(String id) async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     await _db
         .collection('user_wallets')
-        .add({'user_id': userId, 'wallet_id': 'rUk9dCHsyVF3CeD05hNY'});
+        .add({'user_id': userId, 'wallet_id': id});
+    final wallet = await _db.collection('wallets').doc(id).get();
+    return Wallet.fromJson({...?wallet.data(), 'id': wallet.id});
   }
 }

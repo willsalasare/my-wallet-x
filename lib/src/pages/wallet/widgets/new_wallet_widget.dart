@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mywallet/src/core/wallet_repo.dart';
+import 'package:mywallet/src/state/wallet_state.dart';
+import 'package:provider/provider.dart';
 
 class NewWalletWidget extends StatefulWidget {
   const NewWalletWidget({Key? key}) : super(key: key);
@@ -56,7 +58,6 @@ class _NewWalletWidgetState extends State<NewWalletWidget> {
   }
 
   void _shared() {
-    Navigator.pop(context);
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -75,8 +76,13 @@ class _NewWalletWidgetState extends State<NewWalletWidget> {
     );
   }
 
-  void _add() {
-    WalletRepo.instance.importWallet(_walletController.text);
+  void _add() async {
+    final wallet =
+        await WalletRepo.instance.importWallet(_walletController.text);
+    if (!mounted) return;
+    context.read<WalletState>().add(wallet);
+    Navigator.pop(context);
+    Navigator.pop(context);
   }
 
   void _save() async {
